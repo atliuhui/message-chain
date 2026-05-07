@@ -1,0 +1,28 @@
+@host_server = https://httpbin.org
+
+### 
+# @name first
+# @kind http
+POST {{host_server}}/post HTTP/1.1
+Host: httpbin.org
+User-Agent: UnitTest/1.0
+Content-Type: application/json
+
+{
+  "name": "item"
+}
+
+### send message
+# @name second
+# @kind http
+# @when {% if first.status == "success" %}1{% endif %}
+@hostname = {{server1}}
+@port = {{port1}}
+POST {{host_server}}/post HTTP/1.1
+Host: httpbin.org
+User-Agent: UnitTest/1.0
+Content-Type: application/json
+
+{
+  "name": "{{first.response.body.$.headers.Host}}"
+}

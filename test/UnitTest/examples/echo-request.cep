@@ -1,0 +1,4 @@
+EXEC cmd CEP/0.1
+
+/c
+echo Hello World!

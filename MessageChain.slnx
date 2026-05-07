@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="src/Cep/Cep.csproj" />
+  <Project Path="src/CepMessageFormats/CepMessageFormats.csproj" />
+  <Project Path="src/HttpMessageFormats/HttpMessageFormats.csproj" />
+  <Project Path="src/Mcf.Cli/Mcf.Cli.csproj" Id="6b8250f6-787a-4209-91e9-1a4e72ba92d3" />
+  <Project Path="src/Mcf/Mcf.csproj" Id="6021300b-964e-4620-8626-dbc835ab2469" />
+  <Project Path="test/UnitTest/UnitTest.csproj" />
+</Solution>

@@ -1,0 +1,27 @@
+﻿HTTP/1.1 200 OK
+Date: Thu, 23 Apr 2026 07:58:44 GMT
+Connection: keep-alive
+Server: gunicorn/19.9.0
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Credentials: true
+Content-Type: application/json
+Content-Length: 425
+
+{
+  "args": {}, 
+  "data": "hello world!", 
+  "files": {}, 
+  "form": {}, 
+  "headers": {
+    "Content-Length": "21", 
+    "Content-Type": "text/plain; charset=utf-8", 
+    "Host": "httpbin.org", 
+    "User-Agent": "UnitTest/1.0", 
+    "X-Amzn-Trace-Id": "Root=1-69e9d134-6ba5664d112bf12e44b21c1b"
+  }, 
+  "json": {
+    "name": "item"
+  }, 
+  "origin": "128.94.15.141", 
+  "url": "https://httpbin.org/post"
+}

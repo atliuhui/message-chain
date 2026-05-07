@@ -1,0 +1,12 @@
+# ffmpeg example
+EXEC ffmpeg CEP/0.1
+Working-Directory: ${USERPROFILE}\Downloads
+
+-i video.mp4
+-i audio.mp4
+-c:v copy
+-c:a aac
+-map 0:v:0
+-map 1:a:0
+-y
+output.mp4

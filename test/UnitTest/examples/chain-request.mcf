@@ -1,0 +1,20 @@
+### Web Request
+# @name web
+# @kind http
+@host = httpbin.org
+POST https://{{host}}/post HTTP/1.1
+Host: {{host}}
+User-Agent: UnitTest/1.0
+Content-Type: application/json
+
+{
+  "name": "item"
+}
+
+### Command Request
+# @name command
+# @kind cep
+EXEC cmd CEP/0.1
+
+/c
+echo {{web.Request.Headers.Host}}

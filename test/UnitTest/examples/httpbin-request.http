@@ -1,0 +1,8 @@
+POST https://httpbin.org/post HTTP/1.1
+Host: httpbin.org
+User-Agent: UnitTest/1.0
+Content-Type: application/json
+
+{
+  "name": "item"
+}
