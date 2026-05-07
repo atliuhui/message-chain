@@ -41,7 +41,7 @@ sealed class ConsoleReporter : IProgress<ChainProgress>, IDisposable
         var plus = version.IndexOf('+');
         if (plus >= 0)
         {
-            version = version.Substring(0, plus);
+            version = version[..plus];
         }
         AnsiConsole.MarkupLine($"[bold cyan]{Markup.Escape(name)}[/] [grey]v{Markup.Escape(version)}[/]");
         var started = DateTime.Now.ToString("F");

@@ -162,11 +162,11 @@ dotnet_style_readonly_field = true:warning
 
 ### 5.3 `var` preferences ⚙️
 
-Use the explicit type for built-in primitives (`int x = 0`) for readability, and `var` when the right-hand side already makes the type apparent (`var client = new HttpClient()`) or for any other local. This keeps numeric and boolean intent obvious while avoiding redundant type repetition.
+Prefer `var` for every local variable — including built-in primitives (`var count = 0`), apparent types (`var client = new HttpClient()`), and any other local. Repeating the type on the left-hand side adds noise without information; `var` keeps declarations compact and refactor-friendly.
 
 ```ini
 [*.cs]
-csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_for_built_in_types = true:suggestion
 csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_style_var_elsewhere = true:suggestion
 ```
@@ -450,8 +450,8 @@ A condensed cheat-sheet of the most common discouraged → preferred transformat
 | `internal class Foo` | `class Foo` (default `internal`) | Omit accessibility modifiers when they match the language default. |
 | `HttpClient http_client;` (never reassigned) | `readonly HttpClient http_client;` | Use `readonly` for fields not reassigned after construction. |
 | `static public readonly ...` | `public static readonly ...` | Follow the canonical modifier order (see §5.6). |
-| `HttpClient client = new HttpClient();` | `var client = new HttpClient();` | Use `var` when the right-hand side makes the type apparent. |
-| `var count = 0;` | `int count = 0;` | Use the explicit type for built-in primitives. |
+| `HttpClient client = new HttpClient();` | `var client = new HttpClient();` | Use `var` for every local — including built-in primitives. |
+| `int count = 0;` | `var count = 0;` | Prefer `var` even for primitives; the literal makes the type obvious. |
 | `if (x is string) { var s = (string)x; ... }` | `if (x is string s) { ... }` | Use pattern matching instead of `is` + cast. |
 | `if (x != null) x.Run();` | `x?.Run();` | Use null-conditional invocation. |
 | `var v = x != null ? x : fallback;` | `var v = x ?? fallback;` | Use the null-coalescing operator. |
