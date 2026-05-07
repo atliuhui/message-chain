@@ -6,7 +6,11 @@ public partial class ChainEngine
 {
     int running_flag;
 
-    public async partial Task RunAsync(string chainRaw, IProgress<ChainProgress>? progress, CancellationToken cancellationToken)
+    public async partial Task RunAsync(
+        string chainRaw,
+        IReadOnlyDictionary<string, string>? seedVariables,
+        IProgress<ChainProgress>? progress,
+        CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(chainRaw);
 
@@ -20,6 +24,13 @@ public partial class ChainEngine
         {
             Scope.Variables.Clear();
             Scope.Records.Clear();
+            if (seedVariables is not null)
+            {
+                foreach (var (name, value) in seedVariables)
+                {
+                    Scope.Variables[name] = value;
+                }
+            }
 
             Chain.Raw = chainRaw;
             ParseChain();

@@ -20,8 +20,8 @@ Execute an MCF document.
 | --- | --- |
 | `-f`, `--file <path>` | Path to an `.mcf` file. Mutually exclusive with `--raw`. |
 | `-r`, `--raw <text>` | Inline MCF chain text. Mutually exclusive with `--file`. |
-| `-e`, `--env <KEY=VALUE>` | Set a variable. Repeatable; later values override earlier ones. |
-| `--env-file <path>` | Load variables from a dotenv-style file. Repeatable; later files override earlier ones. Lower precedence than `--env`. |
+| `-e`, `--env <KEY=VALUE>` | Set a variable. Repeatable; later values override earlier ones. Each entry is also exported into the host process environment, so it is reachable from both `{{ KEY }}` and `{{ 'KEY' \| env }}`. |
+| `--env-file <path>` | Load variables from a dotenv-style file. Repeatable; later files override earlier ones. Lower precedence than `--env`. Entries are also exported into the host process environment (see `--env`). |
 | `--log <path>` | Write a per-step wire log (raw request/response pairs) to a file. |
 | `--report <path>` | Write a run summary table to a file. |
 
@@ -45,7 +45,15 @@ msgchain run -f .\flow.mcf --env-file .\.env --env TOKEN=devtoken `
 Pipe a chain in via `--raw`:
 
 ```powershell
-msgchain run --raw "### ping`nGET {{ BASE_URL }}/health" -e BASE_URL=https://api.example.com
+msgchain run --raw "### ping`n# @name ping`n# @kind http`nGET https://baidu.com HTTP/1.1"
+```
+
+```powershell
+msgchain run --raw "### ping`n# @name ping`n# @kind http`nGET {{ BASE_URL }} HTTP/1.1" -e BASE_URL=https://baidu.com
+```
+
+```powershell
+msgchain run --raw "### ping`n# @name ping`n# @kind http`nGET {{ 'BASE_URL' | env }} HTTP/1.1" -e BASE_URL=https://baidu.com
 ```
 
 ## TODOs

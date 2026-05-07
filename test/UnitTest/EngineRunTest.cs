@@ -168,6 +168,39 @@ public sealed class EngineRunTest
     }
 
     [TestMethod]
+    public async Task RunAsync_SequentialReuse_WithSeedVariables()
+    {
+        var engine = new ChainEngine();
+        var firstSeed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["BASE_URL"] = "https://a.example",
+        };
+        var secondSeed = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["BASE_URL"] = "https://b.example",
+        };
+
+        await engine.RunAsync(
+            "### a\n# @name a\n@x = {{ BASE_URL }}\n",
+            firstSeed,
+            progress: null,
+            cancellationToken: default);
+
+        Assert.AreEqual("https://a.example", engine.Scope.Variables["x"]);
+
+        await engine.RunAsync(
+            "### b\n# @name b\n@x = {{ BASE_URL }}\n",
+            secondSeed,
+            progress: null,
+            cancellationToken: default);
+
+        Assert.HasCount(1, engine.Scope.Records);
+        Assert.IsTrue(engine.Scope.Records.ContainsKey("b"));
+        Assert.IsFalse(engine.Scope.Records.ContainsKey("a"));
+        Assert.AreEqual("https://b.example", engine.Scope.Variables["x"]);
+    }
+
+    [TestMethod]
     public async Task RunAsync_ExpectCode_CepCustomSuccess()
     {
         var engine = new ChainEngine();

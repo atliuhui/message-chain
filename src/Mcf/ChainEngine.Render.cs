@@ -55,7 +55,39 @@ public partial class ChainEngine
         options.Filters.AddFilter("parse_json", ParseJsonFilter);
         options.Filters.AddFilter("json_path", JsonPathFilter);
         options.Filters.AddFilter("parse_json_path", ParseJsonPathFilter);
+        options.Filters.AddFilter("env", EnvFilter);
         return options;
+    }
+
+    /// <summary>
+    /// Liquid filter <c>env</c>: returns the value of the host process
+    /// environment variable named by the input string. When the variable is
+    /// not set, returns the first filter argument as a fallback, or
+    /// <see cref="NilValue.Instance"/> when no fallback is supplied (so the
+    /// standard <c>default</c> filter can take over).
+    /// Example: <c>{{ "BASE_URL" | env: "https://localhost" }}</c> or
+    /// <c>{{ "BASE_URL" | env | default: "https://localhost" }}</c>.
+    /// </summary>
+    static ValueTask<FluidValue> EnvFilter(FluidValue input, FilterArguments arguments, TemplateContext context)
+    {
+        var name = input.ToStringValue();
+        if (string.IsNullOrEmpty(name))
+        {
+            return new ValueTask<FluidValue>(NilValue.Instance);
+        }
+
+        var value = Environment.GetEnvironmentVariable(name);
+        if (value is not null)
+        {
+            return new ValueTask<FluidValue>(FluidValue.Create(value, context.Options));
+        }
+
+        if (arguments.Count > 0)
+        {
+            return new ValueTask<FluidValue>(arguments.At(0));
+        }
+
+        return new ValueTask<FluidValue>(NilValue.Instance);
     }
 
     /// <summary>

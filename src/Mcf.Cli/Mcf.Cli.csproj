@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Mcf\Mcf.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="UnitTest" />
+  </ItemGroup>
+
 </Project>

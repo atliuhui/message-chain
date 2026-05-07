@@ -142,13 +142,13 @@ sealed class RunCommand : Command
         var engine = new ChainEngine();
         foreach (var (key, value) in seedVariables)
         {
-            engine.Scope.Variables[key] = value;
+            Environment.SetEnvironmentVariable(key, value, EnvironmentVariableTarget.Process);
         }
 
         var reporter = new ConsoleReporter();
         try
         {
-            await engine.RunAsync(chainRaw, reporter, cancellationToken).ConfigureAwait(false);
+            await engine.RunAsync(chainRaw, seedVariables, reporter, cancellationToken).ConfigureAwait(false);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {

@@ -47,9 +47,18 @@ public partial class ChainEngine
     StepDefinition? CurrentStep { get; set; }
     StepRecord? CurrentRecord { get; set; }
 
-    public partial Task RunAsync(string chainRaw, IProgress<ChainProgress>? progress, CancellationToken cancellationToken = default);
+    public partial Task RunAsync(
+        string chainRaw,
+        IReadOnlyDictionary<string, string>? seedVariables,
+        IProgress<ChainProgress>? progress,
+        CancellationToken cancellationToken = default);
+    public Task RunAsync(
+        string chainRaw,
+        IProgress<ChainProgress>? progress,
+        CancellationToken cancellationToken = default) =>
+        RunAsync(chainRaw, seedVariables: null, progress, cancellationToken);
     public Task RunAsync(string chainRaw, CancellationToken cancellationToken = default) =>
-        RunAsync(chainRaw, progress: null, cancellationToken);
+        RunAsync(chainRaw, seedVariables: null, progress: null, cancellationToken);
     partial void ParseChain();
     void RenderStepHeader()
     {

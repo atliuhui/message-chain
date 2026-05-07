@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\src\CepMessageFormats\CepMessageFormats.csproj" />
     <ProjectReference Include="..\..\src\HttpMessageFormats\HttpMessageFormats.csproj" />
     <ProjectReference Include="..\..\src\Mcf\Mcf.csproj" />
+    <ProjectReference Include="..\..\src\Mcf.Cli\Mcf.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>
