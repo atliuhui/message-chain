@@ -38,7 +38,7 @@ jobs:
         run: dotnet restore MessageChain.slnx
 
       - name: Run Tests
-        run: dotnet test MessageChain.slnx --configuration Release --no-restore --filter "TestCategory=CI"
+        run: dotnet test --solution MessageChain.slnx --configuration Release --no-restore --filter "TestCategory=CI"
 
   build:
     name: Build ${{ matrix.runtime }}
