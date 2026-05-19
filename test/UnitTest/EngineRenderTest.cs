@@ -195,6 +195,183 @@ public sealed class EngineRenderTest
     }
 
     [TestMethod]
+    [DataRow(StepStatus.Success, "true")]
+    [DataRow(StepStatus.Skipped, "true")]
+    [DataRow(StepStatus.Failed, "false")]
+    [DataRow(StepStatus.Pending, "false")]
+    public void RenderTemplate_IsOkStatusFilter(StepStatus status, string expected)
+    {
+        var engine = CreateLoginEngine();
+        engine.Scope.Records["login"].Status = status;
+
+        var result = engine.RenderTemplate("{{ login.status | is_ok_status }}");
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_IsOkStatusFilter_UsedInIf()
+    {
+        var engine = CreateLoginEngine();
+        engine.Scope.Records["login"].Status = StepStatus.Success;
+
+        var result = engine.RenderTemplate("{% assign ok = login.status | is_ok_status %}{% if ok %}yes{% else %}no{% endif %}");
+
+        Assert.AreEqual("yes", result);
+    }
+
+    [TestMethod]
+    [DataRow(StepStatus.Success, "false")]
+    [DataRow(StepStatus.Skipped, "false")]
+    [DataRow(StepStatus.Failed, "true")]
+    [DataRow(StepStatus.Pending, "true")]
+    public void RenderTemplate_NotFilter_OnIsOkStatus(StepStatus status, string expected)
+    {
+        var engine = CreateLoginEngine();
+        engine.Scope.Records["login"].Status = status;
+
+        var result = engine.RenderTemplate("{{ login.status | is_ok_status | not }}");
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_NotFilter_UsedInIf()
+    {
+        var engine = CreateLoginEngine();
+        engine.Scope.Records["login"].Status = StepStatus.Failed;
+
+        var result = engine.RenderTemplate(
+            "{% assign bad = login.status | is_ok_status | not %}{% if bad %}fail{% else %}ok{% endif %}");
+
+        Assert.AreEqual("fail", result);
+    }
+
+    [TestMethod]
+    // Only nil and the boolean false are falsy in standard Liquid;
+    // every other value (including empty string, "false" string, and 0) is truthy.
+    [DataRow("false", "true")]
+    [DataRow("true", "false")]
+    [DataRow("nil", "true")]
+    [DataRow("missing", "true")]
+    [DataRow("''", "false")]
+    [DataRow("'hello'", "false")]
+    [DataRow("'false'", "false")]
+    [DataRow("0", "false")]
+    public void RenderTemplate_NotFilter_Truthiness(string expression, string expected)
+    {
+        var engine = new ChainEngine();
+
+        var result = engine.RenderTemplate("{{ " + expression + " | not }}");
+
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_FileExistsFilter_ExistingFile()
+    {
+        var engine = new ChainEngine();
+        var path = Path.GetTempFileName();
+        try
+        {
+            var result = engine.RenderTemplate("{{ '" + path.Replace("\\", "\\\\") + "' | file_exists }}");
+            Assert.AreEqual("true", result);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [TestMethod]
+    public void RenderTemplate_FileExistsFilter_MissingFile()
+    {
+        var engine = new ChainEngine();
+        var path = Path.Combine(Path.GetTempPath(), "mcf-missing-" + Guid.NewGuid().ToString("N") + ".tmp");
+
+        var result = engine.RenderTemplate("{{ '" + path.Replace("\\", "\\\\") + "' | file_exists }}");
+
+        Assert.AreEqual("false", result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_FileExistsFilter_Directory()
+    {
+        var engine = new ChainEngine();
+        var dir = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar);
+
+        // A directory is not a file -> false.
+        var result = engine.RenderTemplate("{{ '" + dir.Replace("\\", "\\\\") + "' | file_exists }}");
+
+        Assert.AreEqual("false", result);
+    }
+
+    [TestMethod]
+    [DataRow("''")]
+    [DataRow("nil")]
+    [DataRow("missing")]
+    public void RenderTemplate_FileExistsFilter_EmptyOrNil(string expression)
+    {
+        var engine = new ChainEngine();
+
+        var result = engine.RenderTemplate("{{ " + expression + " | file_exists }}");
+
+        Assert.AreEqual("false", result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_DirExistsFilter_ExistingDirectory()
+    {
+        var engine = new ChainEngine();
+        var dir = Path.GetTempPath().TrimEnd(Path.DirectorySeparatorChar);
+
+        var result = engine.RenderTemplate("{{ '" + dir.Replace("\\", "\\\\") + "' | dir_exists }}");
+
+        Assert.AreEqual("true", result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_DirExistsFilter_MissingDirectory()
+    {
+        var engine = new ChainEngine();
+        var dir = Path.Combine(Path.GetTempPath(), "mcf-missing-" + Guid.NewGuid().ToString("N"));
+
+        var result = engine.RenderTemplate("{{ '" + dir.Replace("\\", "\\\\") + "' | dir_exists }}");
+
+        Assert.AreEqual("false", result);
+    }
+
+    [TestMethod]
+    public void RenderTemplate_DirExistsFilter_File()
+    {
+        var engine = new ChainEngine();
+        var path = Path.GetTempFileName();
+        try
+        {
+            // A file is not a directory -> false.
+            var result = engine.RenderTemplate("{{ '" + path.Replace("\\", "\\\\") + "' | dir_exists }}");
+            Assert.AreEqual("false", result);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [TestMethod]
+    [DataRow("''")]
+    [DataRow("nil")]
+    [DataRow("missing")]
+    public void RenderTemplate_DirExistsFilter_EmptyOrNil(string expression)
+    {
+        var engine = new ChainEngine();
+
+        var result = engine.RenderTemplate("{{ " + expression + " | dir_exists }}");
+
+        Assert.AreEqual("false", result);
+    }
+
+    [TestMethod]
     public void RenderTemplate_CustomFilter()
     {
         var engine = new ChainEngine();

@@ -552,6 +552,15 @@ All [standard Liquid filters](https://shopify.github.io/liquid/basics/introducti
 - `strip` / `strip_newlines`
 - `date`: `{{ "now" | date: "%Y-%m-%dT%H:%M:%S" }}`
 
+In addition, MCF registers the following custom filters:
+
+| Filter | Input | Result | Example |
+|--------|-------|--------|---------|
+| `is_ok_status` | A `step.status` value (either the enum or its string form, case-insensitive). | `true` when the status is `Success` or `Skipped`; `false` otherwise. | `{% assign ok = login.status \| is_ok_status %}{% if ok %}...{% endif %}` |
+| `not`          | Any value. | Boolean negation using standard Liquid truthiness — only `nil` and `false` are falsy; everything else (including `""`, `0`, and empty arrays) is truthy. | `{% if login.status \| is_ok_status \| not %}failed{% endif %}` |
+| `file_exists`  | A filesystem path string. Relative paths resolve against the current working directory. | `true` when the path refers to an existing **file**; `false` when missing, empty, `nil`, or a directory. | `{% if "./config.json" \| file_exists %}...{% endif %}` |
+| `dir_exists`   | A filesystem path string. Relative paths resolve against the current working directory. | `true` when the path refers to an existing **directory**; `false` when missing, empty, `nil`, or a file. | `{% if "./logs" \| dir_exists %}...{% endif %}` |
+
 ### Undefined Names
 
 Per Liquid semantics, an undefined variable renders as an empty string. Use the `default` filter to supply a fallback when this matters:

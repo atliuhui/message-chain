@@ -56,7 +56,75 @@ public partial class ChainEngine
         options.Filters.AddFilter("json_path", JsonPathFilter);
         options.Filters.AddFilter("parse_json_path", ParseJsonPathFilter);
         options.Filters.AddFilter("env", EnvFilter);
+        options.Filters.AddFilter("is_ok_status", IsOkStatusFilter);
+        options.Filters.AddFilter("not", NotFilter);
+        options.Filters.AddFilter("file_exists", FileExistsFilter);
+        options.Filters.AddFilter("dir_exists", DirExistsFilter);
         return options;
+    }
+
+    /// <summary>
+    /// Liquid filter <c>dir_exists</c>: returns <c>true</c> when the input
+    /// string is a path to an existing directory on the host filesystem, and
+    /// <c>false</c> otherwise (including when the input is <c>nil</c>, empty,
+    /// or points to a file). Relative paths are resolved against the current
+    /// working directory.
+    /// Example: <c>{% if "./logs" | dir_exists %}...{% endif %}</c>.
+    /// </summary>
+    static ValueTask<FluidValue> DirExistsFilter(FluidValue input, FilterArguments _, TemplateContext __)
+    {
+        var path = input?.ToStringValue();
+        var exists = !string.IsNullOrEmpty(path) && Directory.Exists(path);
+        return new ValueTask<FluidValue>(BooleanValue.Create(exists));
+    }
+
+    /// <summary>
+    /// Liquid filter <c>file_exists</c>: returns <c>true</c> when the input
+    /// string is a path to an existing file on the host filesystem, and
+    /// <c>false</c> otherwise (including when the input is <c>nil</c>, empty,
+    /// or points to a directory). Relative paths are resolved against the
+    /// current working directory.
+    /// Example: <c>{% if "./config.json" | file_exists %}...{% endif %}</c>.
+    /// </summary>
+    static ValueTask<FluidValue> FileExistsFilter(FluidValue input, FilterArguments _, TemplateContext __)
+    {
+        var path = input?.ToStringValue();
+        var exists = !string.IsNullOrEmpty(path) && File.Exists(path);
+        return new ValueTask<FluidValue>(BooleanValue.Create(exists));
+    }
+
+    /// <summary>
+    /// Liquid filter <c>not</c>: returns the boolean negation of the input
+    /// using standard Liquid truthiness — only <c>nil</c> and the boolean
+    /// <c>false</c> are falsy; every other value (including empty strings,
+    /// <c>0</c>, and empty collections) is truthy.
+    /// Example: <c>{% assign ok = login.status | is_ok_status %}{% if ok | not %}failed{% endif %}</c>.
+    /// </summary>
+    static ValueTask<FluidValue> NotFilter(FluidValue input, FilterArguments _, TemplateContext __)
+    {
+        var truthy = input is not null && input.ToBooleanValue();
+        return new ValueTask<FluidValue>(BooleanValue.Create(!truthy));
+    }
+
+    /// <summary>
+    /// Liquid filter <c>is_ok_status</c>: returns <c>true</c> when the input
+    /// represents a <see cref="StepStatus"/> of <see cref="StepStatus.Success"/>
+    /// or <see cref="StepStatus.Skipped"/>, and <c>false</c> otherwise. Accepts
+    /// either a <see cref="StepStatus"/> enum value or its string form
+    /// (case-insensitive), which is what <c>step.status</c> renders as.
+    /// Example: <c>{% assign ok = login.status | is_ok_status %}{% if ok %}...{% endif %}</c>.
+    /// </summary>
+    static ValueTask<FluidValue> IsOkStatusFilter(FluidValue input, FilterArguments _, TemplateContext __)
+    {
+        var raw = input?.ToObjectValue();
+        var ok = raw switch
+        {
+            StepStatus s => s is StepStatus.Success or StepStatus.Skipped,
+            string text => string.Equals(text, nameof(StepStatus.Success), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(text, nameof(StepStatus.Skipped), StringComparison.OrdinalIgnoreCase),
+            _ => false,
+        };
+        return new ValueTask<FluidValue>(BooleanValue.Create(ok));
     }
 
     /// <summary>
