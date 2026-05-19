@@ -69,7 +69,7 @@ public partial class ChainEngine
         record.MetadataRendered = RenderTemplate(step.MetadataRaw, context);
         record.VariablesRendered = RenderTemplate(step.VariablesRaw, context);
     }
-    partial void ParseStepHeader();
+    partial void ParseStepHeader(int stepIndex);
     void RenderStepContent()
     {
         var step = RequireCurrentStep();

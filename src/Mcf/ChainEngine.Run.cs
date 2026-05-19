@@ -58,7 +58,7 @@ public partial class ChainEngine
             CurrentRecord = record;
 
             RenderStepHeader();
-            ParseStepHeader();
+            ParseStepHeader(index);
             ValidateUniqueStepName(record.Metadata.Name, record.Metadata.Title);
 
             progress?.Report(new ChainProgress(StepPhase.Started, index, record));

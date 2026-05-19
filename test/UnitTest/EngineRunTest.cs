@@ -89,7 +89,11 @@ public sealed class EngineRunTest
     {
         var engine = new ChainEngine();
 
-        await Assert.ThrowsExactlyAsync<FormatException>(() => engine.RunAsync("### no-name\n"));
+        await engine.RunAsync("### no-name\n\n### still-no-name\n");
+
+        Assert.AreEqual(2, engine.Scope.Records.Count);
+        Assert.IsTrue(engine.Scope.Records.ContainsKey("s1"));
+        Assert.IsTrue(engine.Scope.Records.ContainsKey("s2"));
     }
 
     [TestMethod]

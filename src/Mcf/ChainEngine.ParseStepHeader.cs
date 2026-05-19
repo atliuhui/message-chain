@@ -4,7 +4,7 @@ namespace Mcf;
 
 public partial class ChainEngine
 {
-    partial void ParseStepHeader()
+    partial void ParseStepHeader(int stepIndex)
     {
         var step = RequireCurrentStep();
         var record = RequireCurrentRecord();
@@ -13,7 +13,11 @@ public partial class ChainEngine
         record.Metadata.Title = NullIfBlank(step.Title);
         if (string.IsNullOrWhiteSpace(record.Metadata.Name))
         {
-            throw new FormatException("Step metadata must include a non-empty # @name value.");
+            // Auto-generate a default step name when `# @name` is omitted or
+            // blank: `s` + 1-based step index (e.g. `s1`, `s2`). This keeps
+            // scope keys / `Scope.Records` lookups well-defined without
+            // forcing every chain to author boilerplate metadata.
+            record.Metadata.Name = $"s{stepIndex}";
         }
 
         PopulateVariables(record.Variables, record.VariablesRendered);
