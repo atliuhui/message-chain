@@ -1,0 +1,80 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HTTP Request",
+  "scopeName": "source.http.mcf",
+  "fileTypes": ["http"],
+  "tokenTypes": {
+    "string.unquoted.variable-value.http": "other",
+    "string.unquoted.header-value.http": "other",
+    "string.unquoted.url.http": "other"
+  },
+  "patterns": [
+    { "include": "#separator" },
+    { "include": "#horizontal-rule" },
+    { "include": "#comment" },
+    { "include": "#variable" },
+    { "include": "#request-line" },
+    { "include": "#header-line" },
+    { "include": "#liquid" }
+  ],
+  "repository": {
+    "separator": {
+      "match": "^(#{3,})\\s*(.*)$",
+      "name": "markup.heading.request-separator.http",
+      "captures": {
+        "1": { "name": "punctuation.definition.heading.http" },
+        "2": { "name": "entity.name.section.request-title.http" }
+      }
+    },
+    "horizontal-rule": {
+      "match": "^\\s*([-=]{3,}|\\*{3,})\\s*$",
+      "name": "meta.separator.request.http"
+    },
+    "comment": {
+      "match": "^\\s*(#|//).*$",
+      "name": "comment.line.http"
+    },
+    "variable": {
+      "match": "^\\s*(@)([A-Za-z_][A-Za-z0-9_]*)\\s*(=)\\s*(.*)$",
+      "name": "meta.definition.variable.http",
+      "captures": {
+        "1": { "name": "meta.definition.variable.http" },
+        "2": { "name": "meta.definition.variable.http" },
+        "3": { "name": "keyword.operator.assignment.http" },
+        "4": {
+          "name": "string.unquoted.variable-value.http",
+          "patterns": [{ "include": "#liquid" }]
+        }
+      }
+    },
+    "request-line": {
+      "match": "^\\s*(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS|TRACE|CONNECT)\\s+((?:\\{\\{[^}]*\\}\\}|\\S)+)(?:\\s+(HTTP/[0-9.]+))?\\s*$",
+      "name": "meta.exchange.request.line.http",
+      "captures": {
+        "1": { "name": "keyword.control.http.method" },
+        "2": {
+          "name": "string.unquoted.url.http",
+          "patterns": [{ "include": "#liquid" }]
+        },
+        "3": { "name": "constant.language.http.version" }
+      }
+    },
+    "header-line": {
+      "match": "^([A-Za-z][A-Za-z0-9-]*)\\s*(:)\\s*(.*)$",
+      "name": "meta.exchange.header.line.http",
+      "captures": {
+        "1": { "name": "entity.name.tag.header.http" },
+        "2": { "name": "punctuation.separator.key-value.http" },
+        "3": {
+          "name": "string.unquoted.header-value.http",
+          "patterns": [{ "include": "#liquid" }]
+        }
+      }
+    },
+    "liquid": {
+      "patterns": [
+        { "include": "source.liquid" }
+      ]
+    }
+  }
+}

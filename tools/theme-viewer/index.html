@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>Theme Viewer — token colors</title>
+<style>
+  :root {
+    --bg: #1e1e1e;
+    --fg: #d4d4d4;
+    --panel: #252526;
+    --border: #3c3c3c;
+    --muted: #8a8a8a;
+    --accent: #4ec9b0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    background: #181818;
+    color: #ddd;
+  }
+  header {
+    padding: 16px 20px;
+    background: #222;
+    border-bottom: 1px solid #333;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  header h1 { margin: 0; font-size: 16px; font-weight: 600; }
+  header .spacer { flex: 1; }
+  input[type=file], input[type=search], button {
+    background: #2d2d2d;
+    color: #ddd;
+    border: 1px solid #444;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  button { cursor: pointer; }
+  button:hover { background: #3a3a3a; }
+  input[type=search] { width: 280px; }
+  select {
+    background: #2d2d2d;
+    color: #ddd;
+    border: 1px solid #444;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: #fff; }
+  th .arrow { color: var(--accent); margin-left: 4px; font-size: 11px; }
+  .meta {
+    padding: 10px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    background: #1f1f1f;
+    border-bottom: 1px solid #2a2a2a;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .meta .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    background: #2a2a2a;
+    border-radius: 12px;
+  }
+  .meta .swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid #555;
+    display: inline-block;
+  }
+
+  main { padding: 16px 20px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid #2a2a2a;
+    vertical-align: top;
+  }
+  th {
+    position: sticky;
+    top: 0;
+    background: #1f1f1f;
+    color: #aaa;
+    font-weight: 500;
+    z-index: 1;
+  }
+  tr:hover td { background: #232323; }
+  .scope {
+    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+    color: #c8c8c8;
+    white-space: nowrap;
+  }
+  .scope-list { display: flex; flex-direction: column; gap: 2px; }
+  .swatch-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .swatch-box {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    flex: none;
+  }
+  .hex {
+    font-family: "Cascadia Code", "Consolas", monospace;
+    font-size: 12px;
+    color: #aaa;
+  }
+  .sample {
+    font-family: "Cascadia Code", "Consolas", "Courier New", monospace;
+    font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .name { color: #9cdcfe; }
+  .empty {
+    padding: 40px;
+    text-align: center;
+    color: var(--muted);
+  }
+  details.raw {
+    margin-top: 20px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    padding: 8px 12px;
+    border-radius: 4px;
+  }
+  details.raw pre {
+    margin: 8px 0 0;
+    max-height: 400px;
+    overflow: auto;
+    font-size: 12px;
+    background: #111;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  .drop-hint {
+    border: 2px dashed #444;
+    padding: 24px;
+    text-align: center;
+    color: var(--muted);
+    margin: 20px;
+    border-radius: 6px;
+  }
+  .drop-hint.over { border-color: var(--accent); color: var(--accent); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Theme Viewer</h1>
+  <input type="file" id="file" accept=".json,.jsonc,.tmTheme" />
+  <button id="btn-builtin">加载示例 Dark+</button>
+  <div class="spacer"></div>
+  <input type="search" id="filter" placeholder="过滤 scope (例如 punctuation, comment)" />
+  <label style="font-size:12px;color:#aaa;">排序:
+    <select id="sort-key">
+      <option value="idx">原始顺序</option>
+      <option value="name">name</option>
+      <option value="scope">scope</option>
+      <option value="fg">foreground</option>
+    </select>
+  </label>
+  <select id="sort-dir">
+    <option value="asc">升序</option>
+    <option value="desc">降序</option>
+  </select>
+  <label style="font-size:12px;color:#aaa;display:inline-flex;align-items:center;gap:4px;">
+    <input type="checkbox" id="group-fg" />按 foreground 分组
+  </label>
+</header>
+
+<div class="meta" id="meta" hidden></div>
+<div id="drop" class="drop-hint">拖入或选择一个 VS Code 主题 JSON 文件（含 <code>tokenColors</code>）</div>
+
+<main>
+  <div id="root"></div>
+  <details class="raw" id="raw" hidden>
+    <summary>原始 tokenColors JSON</summary>
+    <pre id="raw-content"></pre>
+  </details>
+</main>
+
+<script>
+const fileInput = document.getElementById('file');
+const filterInput = document.getElementById('filter');
+const drop = document.getElementById('drop');
+const root = document.getElementById('root');
+const metaEl = document.getElementById('meta');
+const rawDetails = document.getElementById('raw');
+const rawContent = document.getElementById('raw-content');
+const builtinBtn = document.getElementById('btn-builtin');
+const sortKeyEl = document.getElementById('sort-key');
+const sortDirEl = document.getElementById('sort-dir');
+const groupFgEl = document.getElementById('group-fg');
+
+let currentTheme = null;
+let currentRows = [];
+
+function stripJsonComments(text) {
+  // remove /* ... */ and // ... line comments (good enough for VS Code .jsonc themes)
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/^\s*\/\/.*$/gm, '');
+}
+
+function render() {
+  if (!currentTheme) return;
+  const editorBg = (currentTheme.colors && (currentTheme.colors['editor.background'])) || '#1e1e1e';
+  const editorFg = (currentTheme.colors && (currentTheme.colors['editor.foreground'])) || '#d4d4d4';
+
+  metaEl.hidden = false;
+  metaEl.innerHTML = `
+    <span><b>${escapeHtml(currentTheme.name || '(no name)')}</b></span>
+    <span>type: ${escapeHtml(currentTheme.type || '-')}</span>
+    <span class="chip"><span class="swatch" style="background:${editorBg}"></span> editor.background ${editorBg}</span>
+    <span class="chip"><span class="swatch" style="background:${editorFg}"></span> editor.foreground ${editorFg}</span>
+    <span>tokenColors: ${(currentTheme.tokenColors || []).length}</span>
+  `;
+
+  const filter = filterInput.value.trim().toLowerCase();
+  // 取消分组：一条 rule 含多个 scope 时，拆分为多行分别显示
+  currentRows = (currentTheme.tokenColors || []).flatMap((rule, idx) => {
+    const scopes = normalizeScopes(rule.scope);
+    const fg = rule.settings && rule.settings.foreground;
+    const bg = rule.settings && rule.settings.background;
+    const style = rule.settings && rule.settings.fontStyle;
+    const base = { idx, name: rule.name || '', fg, bg, style };
+    if (!scopes.length) return [{ ...base, subIdx: 0, scope: '' }];
+    return scopes.map((s, j) => ({ ...base, subIdx: j, scope: s }));
+  }).filter(r => {
+    if (!filter) return true;
+    return r.name.toLowerCase().includes(filter)
+        || r.scope.toLowerCase().includes(filter);
+  });
+
+  const sortKey = sortKeyEl.value;
+  const sortDir = sortDirEl.value === 'desc' ? -1 : 1;
+  const groupByFg = groupFgEl.checked;
+  const keyOf = r => {
+    if (sortKey === 'name')  return (r.name || '').toLowerCase();
+    if (sortKey === 'scope') return (r.scope || '').toLowerCase();
+    if (sortKey === 'fg')    return (r.fg || '').toLowerCase();
+    return null; // idx
+  };
+  const cmpStr = (a, b, dir) => {
+    if (!a && b) return 1;
+    if (a && !b) return -1;
+    if (a < b) return -1 * dir;
+    if (a > b) return  1 * dir;
+    return 0;
+  };
+  currentRows.sort((a, b) => {
+    if (groupByFg) {
+      const c = cmpStr((a.fg || '').toLowerCase(), (b.fg || '').toLowerCase(), 1);
+      if (c !== 0) return c;
+    }
+    if (sortKey !== 'idx') {
+      const c = cmpStr(keyOf(a), keyOf(b), sortDir);
+      if (c !== 0) return c;
+    } else if (!groupByFg) {
+      return (a.idx - b.idx) * sortDir || (a.subIdx - b.subIdx);
+    }
+    return (a.idx - b.idx) || (a.subIdx - b.subIdx);
+  });
+
+  if (!currentRows.length) {
+    root.innerHTML = `<div class="empty">没有匹配的规则</div>`;
+    return;
+  }
+
+  let lastFg = null;
+  const rowsHtml = currentRows.map(r => {
+    const fg = r.fg || editorFg;
+    const bg = r.bg || editorBg;
+    const styleAttr = `color:${fg};background:${bg};${styleToCss(r.style)}`;
+    const fgSwatch = r.fg
+      ? `<div class="swatch-cell"><span class="swatch-box" style="background:${r.fg}"></span><span class="hex">${r.fg}</span></div>`
+      : `<span class="hex" style="color:#666">—</span>`;
+    const bgSwatch = r.bg
+      ? `<div class="swatch-cell"><span class="swatch-box" style="background:${r.bg}"></span><span class="hex">${r.bg}</span></div>`
+      : `<span class="hex" style="color:#666">—</span>`;
+    const styleCell = r.style ? escapeHtml(r.style) : `<span class="hex" style="color:#666">—</span>`;
+    const scopeCell = r.scope
+      ? escapeHtml(r.scope)
+      : `<span class="hex" style="color:#666">(default)</span>`;
+    let header = '';
+    if (groupByFg) {
+      const fgKey = (r.fg || '').toLowerCase();
+      if (fgKey !== lastFg) {
+        lastFg = fgKey;
+        const label = r.fg
+          ? `<span class="swatch-box" style="width:14px;height:14px;background:${r.fg};vertical-align:middle;margin-right:6px;"></span><span class="hex" style="color:#ddd">${r.fg}</span>`
+          : `<span class="hex" style="color:#888">(no foreground)</span>`;
+        header = `<tr class="group-row"><td colspan="7" style="background:#1a1a1a;padding:6px 10px;border-top:1px solid #2a2a2a;">${label}</td></tr>`;
+      }
+    }
+    return header + `
+      <tr>
+        <td style="color:#888">${r.idx}${r.subIdx ? `.${r.subIdx}` : ''}</td>
+        <td><span class="name">${escapeHtml(r.name || '')}</span></td>
+        <td class="scope">${scopeCell}</td>
+        <td>${fgSwatch}</td>
+        <td>${bgSwatch}</td>
+        <td>${styleCell}</td>
+        <td><span class="sample" style="${styleAttr}">AaBb &lt;tag&gt; "string" 123</span></td>
+      </tr>`;
+  }).join('');
+
+  const arrow = sortDirEl.value === 'desc' ? '▼' : '▲';
+  const mark = k => sortKeyEl.value === k ? `<span class="arrow">${arrow}</span>` : '';
+  root.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th class="sortable" data-sort="idx">#${mark('idx')}</th>
+          <th class="sortable" data-sort="name">name${mark('name')}</th>
+          <th class="sortable" data-sort="scope">scope${mark('scope')}</th>
+          <th class="sortable" data-sort="fg">foreground${mark('fg')}</th>
+          <th>background</th>
+          <th>fontStyle</th>
+          <th>sample</th>
+        </tr>
+      </thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+  `;
+  root.querySelectorAll('th.sortable').forEach(th => {
+    th.addEventListener('click', () => {
+      const k = th.dataset.sort;
+      if (sortKeyEl.value === k) {
+        sortDirEl.value = sortDirEl.value === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortKeyEl.value = k;
+        sortDirEl.value = 'asc';
+      }
+      render();
+    });
+  });
+
+  rawDetails.hidden = false;
+  rawContent.textContent = JSON.stringify(currentTheme.tokenColors, null, 2);
+}
+
+function normalizeScopes(scope) {
+  if (!scope) return [];
+  if (Array.isArray(scope)) {
+    return scope.flatMap(s => s.split(',').map(x => x.trim()).filter(Boolean));
+  }
+  return scope.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function styleToCss(style) {
+  if (!style) return '';
+  const parts = style.split(/\s+/);
+  const out = [];
+  if (parts.includes('bold'))      out.push('font-weight:bold');
+  if (parts.includes('italic'))    out.push('font-style:italic');
+  if (parts.includes('underline')) out.push('text-decoration:underline');
+  if (parts.includes('strikethrough')) out.push('text-decoration:line-through');
+  return out.join(';');
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+async function loadFile(file) {
+  const text = await file.text();
+  try {
+    const theme = JSON.parse(stripJsonComments(text));
+    currentTheme = theme;
+    drop.hidden = true;
+    render();
+  } catch (e) {
+    alert('解析失败：' + e.message);
+  }
+}
+
+fileInput.addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) loadFile(f);
+});
+
+['dragenter','dragover'].forEach(evt =>
+  drop.addEventListener(evt, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(evt =>
+  drop.addEventListener(evt, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => {
+  const f = e.dataTransfer.files[0];
+  if (f) loadFile(f);
+});
+
+filterInput.addEventListener('input', render);
+sortKeyEl.addEventListener('change', render);
+sortDirEl.addEventListener('change', render);
+groupFgEl.addEventListener('change', render);
+
+// 内置示例：一份精简版 Dark+ tokenColors（仅用于离线演示）
+builtinBtn.addEventListener('click', () => {
+  currentTheme = SAMPLE_DARK_PLUS;
+  drop.hidden = true;
+  render();
+});
+
+const SAMPLE_DARK_PLUS = {
+  name: "Dark+ (sample)",
+  type: "dark",
+  colors: { "editor.background": "#1e1e1e", "editor.foreground": "#d4d4d4" },
+  tokenColors: [
+    { name: "Comment", scope: ["comment", "punctuation.definition.comment"], settings: { foreground: "#6A9955", fontStyle: "italic" }},
+    { name: "String", scope: ["string"], settings: { foreground: "#ce9178" }},
+    { name: "Number", scope: ["constant.numeric"], settings: { foreground: "#b5cea8" }},
+    { name: "Language constant", scope: ["constant.language"], settings: { foreground: "#569cd6" }},
+    { name: "Keyword", scope: ["keyword", "keyword.control"], settings: { foreground: "#c586c0" }},
+    { name: "Storage type", scope: ["storage.type", "storage.modifier"], settings: { foreground: "#569cd6" }},
+    { name: "Function", scope: ["entity.name.function", "support.function"], settings: { foreground: "#dcdcaa" }},
+    { name: "Type", scope: ["entity.name.type", "support.type"], settings: { foreground: "#4ec9b0" }},
+    { name: "Variable", scope: ["variable", "variable.other"], settings: { foreground: "#9cdcfe" }},
+    { name: "Property", scope: ["variable.other.property", "support.type.property-name"], settings: { foreground: "#9cdcfe" }},
+    { name: "Markup heading", scope: ["markup.heading", "entity.name.section"], settings: { foreground: "#569cd6", fontStyle: "bold" }},
+    { name: "Markup separator", scope: ["meta.separator"], settings: { foreground: "#569cd6", background: "#1e3a5f" }},
+    { name: "Punctuation heading", scope: ["punctuation.definition.heading"], settings: { foreground: "#569cd6" }},
+    { name: "Operator", scope: ["keyword.operator"], settings: { foreground: "#d4d4d4" }},
+    { name: "Tag", scope: ["entity.name.tag"], settings: { foreground: "#569cd6" }},
+    { name: "Embedded begin/end", scope: ["punctuation.section.embedded"], settings: { foreground: "#569cd6" }}
+  ]
+};
+</script>
+
+</body>
+</html>

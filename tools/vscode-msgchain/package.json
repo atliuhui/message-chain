@@ -1,0 +1,101 @@
+{
+  "name": "vscode-msgchain",
+  "displayName": "Message Chain Format",
+  "description": "Syntax highlighting for MCF (Message Chain Format) .mcf files.",
+  "version": "0.1.0",
+  "publisher": "message-chain",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "mcf",
+    "message chain",
+    "http",
+    "cep",
+    "rest"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "mcf",
+        "aliases": [
+          "Message Chain Format",
+          "mcf"
+        ],
+        "extensions": [
+          ".mcf"
+        ],
+        "configuration": "./language-configuration.mcf.json"
+      },
+      {
+        "id": "cep",
+        "aliases": [
+          "Command Execution Protocol",
+          "cep"
+        ],
+        "extensions": [
+          ".cep"
+        ],
+        "configuration": "./language-configuration.cep.json"
+      },
+      {
+        "id": "http",
+        "aliases": [
+          "HTTP Request",
+          "http"
+        ],
+        "extensions": [
+          ".http",
+          ".rest"
+        ],
+        "configuration": "./language-configuration.http.json"
+      },
+      {
+        "id": "liquid",
+        "aliases": [
+          "Liquid",
+          "liquid"
+        ],
+        "extensions": [
+          ".liquid"
+        ],
+        "configuration": "./language-configuration.liquid.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mcf",
+        "scopeName": "source.mcf",
+        "path": "./syntaxes/mcf.tmLanguage.json",
+        "embeddedLanguages": {
+          "meta.embedded.block.http": "http",
+          "meta.embedded.block.json": "json"
+        }
+      },
+      {
+        "language": "cep",
+        "scopeName": "source.cep",
+        "path": "./syntaxes/cep.tmLanguage.json"
+      },
+      {
+        "language": "http",
+        "scopeName": "source.http.mcf",
+        "path": "./syntaxes/http.tmLanguage.json"
+      },
+      {
+        "language": "liquid",
+        "scopeName": "source.liquid",
+        "path": "./syntaxes/liquid.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "mcf",
+        "path": "./snippets/mcf.code-snippets"
+      }
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "Step (HTTP)": {
+    "prefix": "step-http",
+    "body": [
+      "### ${1:title}",
+      "# @name ${2:stepName}",
+      "# @kind http",
+      "${3:GET} ${4:{{baseUrl}}}/${5:path} HTTP/1.1",
+      "Host: ${6:example.com}",
+      "$0"
+    ],
+    "description": "New HTTP step"
+  },
+  "Step (CEP)": {
+    "prefix": "step-cep",
+    "body": [
+      "### ${1:title}",
+      "# @name ${2:stepName}",
+      "# @kind cep",
+      "EXEC ${3:command} CEP/0.1",
+      "Working-Directory: ${4:.}",
+      "",
+      "$0"
+    ],
+    "description": "New CEP step"
+  },
+  "Step (Empty)": {
+    "prefix": "step-empty",
+    "body": [
+      "### ${1:title}",
+      "# @name ${2:stepName}",
+      "# @kind empty",
+      "@${3:variable} = ${4:value}",
+      "$0"
+    ],
+    "description": "New variable-only step"
+  },
+  "Metadata: name": {
+    "prefix": "@name",
+    "body": "# @name ${1:stepName}",
+    "description": "Step name"
+  },
+  "Metadata: kind": {
+    "prefix": "@kind",
+    "body": "# @kind ${1|http,cep,empty|}",
+    "description": "Step kind"
+  },
+  "Metadata: when": {
+    "prefix": "@when",
+    "body": "# @when {% if ${1:cond} %}true{% else %}false{% endif %}",
+    "description": "Conditional execution"
+  },
+  "Metadata: timeout": {
+    "prefix": "@timeout",
+    "body": "# @timeout ${1:00:00:30}",
+    "description": "Per-attempt timeout"
+  },
+  "Metadata: retry-attempts": {
+    "prefix": "@retry-attempts",
+    "body": "# @retry-attempts ${1:3}",
+    "description": "Number of retry attempts"
+  },
+  "Metadata: retry-delays": {
+    "prefix": "@retry-delays",
+    "body": "# @retry-delays ${1:00:00:01,00:00:02,00:00:05}",
+    "description": "Retry delays (comma-separated TimeSpans)"
+  },
+  "Metadata: expect-codes": {
+    "prefix": "@expect-codes",
+    "body": "# @expect-codes ${1:2xx}",
+    "description": "Expected response codes"
+  },
+  "Metadata: continue-on-error": {
+    "prefix": "@continue-on-error",
+    "body": "# @continue-on-error ${1|true,false|}",
+    "description": "Continue chain after failure"
+  },
+  "Metadata: description": {
+    "prefix": "@description",
+    "body": "# @description ${1:text}",
+    "description": "Step description"
+  }
+}

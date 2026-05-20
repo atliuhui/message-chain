@@ -1,0 +1,190 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Liquid (MCF)",
+  "scopeName": "source.liquid",
+  "tokenTypes": {
+    "punctuation.section.embedded.liquid": "string",
+    "punctuation.definition.tag.begin.liquid": "string",
+    "punctuation.definition.tag.end.liquid": "string"
+  },
+  "patterns": [
+    { "include": "#raw-block" },
+    { "include": "#comment-block" },
+    { "include": "#tag" },
+    { "include": "#output" }
+  ],
+  "repository": {
+    "raw-block": {
+      "begin": "(\\{%-?)\\s*(raw)\\s*(-?%\\})",
+      "end": "(\\{%-?)\\s*(endraw)\\s*(-?%\\})",
+      "name": "meta.tag.raw.liquid",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.liquid" },
+        "2": { "name": "keyword.control.liquid" },
+        "3": { "name": "punctuation.definition.tag.end.liquid" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.liquid" },
+        "2": { "name": "keyword.control.liquid" },
+        "3": { "name": "punctuation.definition.tag.end.liquid" }
+      },
+      "contentName": "string.unquoted.raw.liquid"
+    },
+    "comment-block": {
+      "begin": "(\\{%-?)\\s*(comment)\\s*(-?%\\})",
+      "end": "(\\{%-?)\\s*(endcomment)\\s*(-?%\\})",
+      "name": "comment.block.liquid",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.comment.begin.liquid" },
+        "2": { "name": "keyword.control.liquid" },
+        "3": { "name": "punctuation.definition.comment.begin.liquid" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.comment.end.liquid" },
+        "2": { "name": "keyword.control.liquid" },
+        "3": { "name": "punctuation.definition.comment.end.liquid" }
+      }
+    },
+    "tag": {
+      "name": "meta.tag.liquid",
+      "begin": "(\\{%-?)\\s*([A-Za-z_][A-Za-z0-9_]*)?",
+      "end": "(-?%\\})",
+      "beginCaptures": {
+        "1": { "name": "punctuation.definition.tag.begin.liquid" },
+        "2": { "name": "keyword.control.liquid",
+               "patterns": [{ "include": "#tag-name" }] }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.definition.tag.end.liquid" }
+      },
+      "patterns": [
+        { "include": "#expression" }
+      ]
+    },
+    "output": {
+      "name": "meta.embedded.expression.liquid",
+      "begin": "(\\{\\{-?)",
+      "end": "(-?\\}\\})",
+      "beginCaptures": {
+        "1": { "name": "punctuation.section.embedded.liquid" }
+      },
+      "endCaptures": {
+        "1": { "name": "punctuation.section.embedded.liquid" }
+      },
+      "patterns": [
+        { "include": "#expression" }
+      ]
+    },
+    "tag-name": {
+      "match": "\\b(if|elsif|else|endif|unless|endunless|case|when|endcase|for|endfor|break|continue|cycle|tablerow|endtablerow|assign|capture|endcapture|increment|decrement|include|render|liquid|echo|raw|endraw|comment|endcomment)\\b",
+      "name": "keyword.control.liquid"
+    },
+    "expression": {
+      "patterns": [
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#constant" },
+        { "include": "#range" },
+        { "include": "#operator" },
+        { "include": "#filter" },
+        { "include": "#property-access" },
+        { "include": "#identifier" },
+        { "include": "#punctuation" }
+      ]
+    },
+    "string": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.liquid",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            { "match": "\\\\.", "name": "constant.character.escape.liquid" }
+          ]
+        },
+        {
+          "name": "string.quoted.single.liquid",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            { "match": "\\\\.", "name": "constant.character.escape.liquid" }
+          ]
+        }
+      ]
+    },
+    "number": {
+      "match": "\\b-?[0-9]+(?:\\.[0-9]+)?\\b",
+      "name": "constant.numeric.liquid"
+    },
+    "constant": {
+      "match": "\\b(true|false|nil|null|empty|blank)\\b",
+      "name": "constant.language.liquid"
+    },
+    "range": {
+      "begin": "\\(",
+      "end": "\\)",
+      "beginCaptures": { "0": { "name": "punctuation.definition.range.begin.liquid" } },
+      "endCaptures":   { "0": { "name": "punctuation.definition.range.end.liquid" } },
+      "patterns": [
+        { "match": "\\.\\.", "name": "keyword.operator.range.liquid" },
+        { "include": "#expression" }
+      ]
+    },
+    "operator": {
+      "patterns": [
+        {
+          "match": "==|!=|<=|>=|<|>",
+          "name": "keyword.operator.comparison.liquid"
+        },
+        {
+          "match": "\\b(and|or|not|contains|in)\\b",
+          "name": "keyword.operator.logical.liquid"
+        },
+        {
+          "match": "=",
+          "name": "keyword.operator.assignment.liquid"
+        }
+      ]
+    },
+    "filter": {
+      "begin": "(\\|)\\s*([A-Za-z_][A-Za-z0-9_]*)",
+      "end": "(?=\\||-?%\\}|-?\\}\\})",
+      "beginCaptures": {
+        "1": { "name": "keyword.operator.filter.liquid" },
+        "2": { "name": "support.function.filter.liquid" }
+      },
+      "patterns": [
+        {
+          "match": ":",
+          "name": "punctuation.separator.filter-argument.liquid"
+        },
+        {
+          "match": ",",
+          "name": "punctuation.separator.comma.liquid"
+        },
+        { "include": "#string" },
+        { "include": "#number" },
+        { "include": "#constant" },
+        { "include": "#property-access" },
+        { "include": "#identifier" }
+      ]
+    },
+    "property-access": {
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(?=\\s*(?:\\.|\\[))",
+      "name": "variable.other.object.liquid"
+    },
+    "identifier": {
+      "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\b",
+      "name": "variable.other.liquid"
+    },
+    "punctuation": {
+      "patterns": [
+        { "match": "\\.",  "name": "punctuation.accessor.liquid" },
+        { "match": "\\[",  "name": "punctuation.section.brackets.begin.liquid" },
+        { "match": "\\]",  "name": "punctuation.section.brackets.end.liquid" },
+        { "match": ",",    "name": "punctuation.separator.comma.liquid" },
+        { "match": ":",    "name": "punctuation.separator.colon.liquid" }
+      ]
+    }
+  }
+}
