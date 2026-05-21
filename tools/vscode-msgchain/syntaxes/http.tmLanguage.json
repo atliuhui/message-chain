@@ -4,6 +4,7 @@
   "scopeName": "source.http.mcf",
   "fileTypes": ["http"],
   "tokenTypes": {
+    "string.unquoted.metadata-value.http": "other",
     "string.unquoted.variable-value.http": "other",
     "string.unquoted.header-value.http": "other",
     "string.unquoted.url.http": "other"
@@ -11,8 +12,9 @@
   "patterns": [
     { "include": "#separator" },
     { "include": "#horizontal-rule" },
-    { "include": "#comment" },
+    { "include": "#step-metadata" },
     { "include": "#variable" },
+    { "include": "#comment" },
     { "include": "#request-line" },
     { "include": "#header-line" },
     { "include": "#liquid" }
@@ -29,6 +31,31 @@
     "horizontal-rule": {
       "match": "^\\s*([-=]{3,}|\\*{3,})\\s*$",
       "name": "meta.separator.request.http"
+    },
+    "step-metadata": {
+      "match": "^\\s*(#)\\s*(@)(name|kind|when|timeout|retry-attempts|retry-delays|expect-codes|continue-on-error|description)\\b\\s*(.*)$",
+      "name": "meta.step.metadata.line.http",
+      "captures": {
+        "1": { "name": "punctuation.definition.comment.http" },
+        "2": { "name": "entity.name.tag.metadata.http" },
+        "3": { "name": "entity.name.tag.metadata.http" },
+        "4": {
+          "name": "string.unquoted.metadata-value.http",
+          "patterns": [
+            { "include": "#metadata-kind-value" },
+            { "include": "#metadata-bool-value" },
+            { "include": "#liquid" }
+          ]
+        }
+      }
+    },
+    "metadata-kind-value": {
+      "match": "\\b(http|cep|empty)\\b",
+      "name": "constant.language.step-kind.http"
+    },
+    "metadata-bool-value": {
+      "match": "\\b(true|false)\\b",
+      "name": "constant.language.boolean.http"
     },
     "comment": {
       "match": "^\\s*(#|//).*$",

@@ -8,6 +8,8 @@ README.html
 CEP.html
 MCF.html
 
+dist/
+
 # User-specific files
 *.rsuser
 *.suo
